@@ -22,11 +22,11 @@ _This screenshot shows the resolver traversing from the Root Server down to the 
 
 ![Before Cache](images/Screenshot%202026-01-01%20231006.png)
 
-### 2. Caching & Performance
+### 2. Advanced CNAME Resolution
 
-_Notice the "Resolution took" time on the second run drops to near zero due to the in-memory cache._
+_This screenshot demonstrates the resolver handling a complex CNAME alias. It detects that `www.facebook.com` points to `star-mini.c10r.facebook.com`, automatically restarts the entire recursive process for the new name, and successfully resolves the final IP._
 
-![After Cache & CName](images/Screenshot%202026-01-02%20092158.png)
+![Complex CNAME Resolution](images/Screenshot%202026-01-02%20092158.png)
 
 ## 🛠️ Installation & Usage
 
