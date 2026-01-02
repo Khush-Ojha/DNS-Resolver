@@ -46,7 +46,7 @@ go run main.go google.com
 go run main.go [www.facebook.com](https://www.facebook.com)
 ```
 
-#### The Working
+## The Working
 
 This project bypasses the OS's default DNS stub resolver. Here is the lifecycle of a request:
 
