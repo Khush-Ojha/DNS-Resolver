@@ -29,6 +29,26 @@ type ResourceRecord struct {
 	RData []byte
 }
 
+// ToName converts the RData bytes into a readable domain string (used for CNAME/NS records)
+func (r *ResourceRecord) ToName() string {
+	// Basic parser for the RData.
+	// In a production system, this needs the full original packet for decompression pointers.
+	// Here we implement a simplified reader for standalone names.
+	var parts []string
+	reader := bytes.NewReader(r.RData)
+	for {
+		b, err := reader.ReadByte()
+		if err != nil || b == 0 {
+			break
+		}
+		length := int(b)
+		buf := make([]byte, length)
+		reader.Read(buf)
+		parts = append(parts, string(buf))
+	}
+	return strings.Join(parts, ".")
+}
+
 type Message struct {
 	Header      Header
 	Questions   []Question
@@ -47,8 +67,8 @@ func NewQuery(domain string) *Message {
 		Questions: []Question{
 			{
 				Name:  domain,
-				Type:  1,
-				Class: 1,
+				Type:  1, // Type A (IPv4)
+				Class: 1, // Class IN
 			},
 		},
 	}
@@ -139,8 +159,11 @@ func parseRecord(reader *bytes.Reader, fullData []byte) (ResourceRecord, error) 
 	binary.Read(reader, binary.BigEndian, &class)
 	binary.Read(reader, binary.BigEndian, &ttl)
 	binary.Read(reader, binary.BigEndian, &dataLen)
+
+	// IMPORTANT: We read the data immediately into a buffer
 	data := make([]byte, dataLen)
 	reader.Read(data)
+
 	return ResourceRecord{Name: name, Type: type_, Class: class, TTL: ttl, RData: data}, nil
 }
 
