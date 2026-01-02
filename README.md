@@ -20,13 +20,13 @@ It demonstrates deep systems programming concepts including raw UDP socket commu
 
 _This screenshot shows the resolver traversing from the Root Server down to the final IP._
 
-![Before Cache](images/Screenshot 2026-01-01 231006.png)
+![Before Cache](images/Screenshot%202026-01-01%20231006.png)
 
 ### 2. Caching & Performance
 
 _Notice the "Resolution took" time on the second run drops to near zero due to the in-memory cache._
 
-![After Cache & CName](images/Screenshot 2026-01-02 082502.png)
+![After Cache & CName](images/Screenshot%202026-01-02%20082502.png)
 
 ## 🛠️ Installation & Usage
 
