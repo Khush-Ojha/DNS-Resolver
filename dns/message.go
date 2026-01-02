@@ -22,31 +22,12 @@ type Question struct {
 }
 
 type ResourceRecord struct {
-	Name  string
-	Type  uint16
-	Class uint16
-	TTL   uint32
-	RData []byte
-}
-
-// ToName converts the RData bytes into a readable domain string (used for CNAME/NS records)
-func (r *ResourceRecord) ToName() string {
-	// Basic parser for the RData.
-	// In a production system, this needs the full original packet for decompression pointers.
-	// Here we implement a simplified reader for standalone names.
-	var parts []string
-	reader := bytes.NewReader(r.RData)
-	for {
-		b, err := reader.ReadByte()
-		if err != nil || b == 0 {
-			break
-		}
-		length := int(b)
-		buf := make([]byte, length)
-		reader.Read(buf)
-		parts = append(parts, string(buf))
-	}
-	return strings.Join(parts, ".")
+	Name          string
+	Type          uint16
+	Class         uint16
+	TTL           uint32
+	RData         []byte
+	CNAMEResource string // <--- NEW: Stores the fully decoded CNAME
 }
 
 type Message struct {
@@ -67,7 +48,7 @@ func NewQuery(domain string) *Message {
 		Questions: []Question{
 			{
 				Name:  domain,
-				Type:  1, // Type A (IPv4)
+				Type:  1, // Type A
 				Class: 1, // Class IN
 			},
 		},
@@ -160,11 +141,31 @@ func parseRecord(reader *bytes.Reader, fullData []byte) (ResourceRecord, error) 
 	binary.Read(reader, binary.BigEndian, &ttl)
 	binary.Read(reader, binary.BigEndian, &dataLen)
 
-	// IMPORTANT: We read the data immediately into a buffer
-	data := make([]byte, dataLen)
-	reader.Read(data)
+	// --- FIX STARTS HERE ---
+	// If it's a CNAME (Type 5), decode the name immediately using fullData
+	var cnameResource string
+	var data []byte
 
-	return ResourceRecord{Name: name, Type: type_, Class: class, TTL: ttl, RData: data}, nil
+	if type_ == 5 {
+		// Record where we are before reading the name
+		startPos, _ := reader.Seek(0, 1) // Current offset
+
+		// Decode the CNAME using the full packet (handles pointers)
+		decoded, err := decodeName(reader, fullData)
+		if err == nil {
+			cnameResource = decoded
+		}
+
+		// Ensure we advance the reader exactly by dataLen, regardless of where decodeName jumped
+		reader.Seek(startPos+int64(dataLen), 0)
+	} else {
+		// Standard behavior for other records
+		data = make([]byte, dataLen)
+		reader.Read(data)
+	}
+	// --- FIX ENDS HERE ---
+
+	return ResourceRecord{Name: name, Type: type_, Class: class, TTL: ttl, RData: data, CNAMEResource: cnameResource}, nil
 }
 
 func decodeName(reader *bytes.Reader, fullData []byte) (string, error) {
