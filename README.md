@@ -45,3 +45,23 @@ go run main.go google.com
 # Test CNAME handling
 go run main.go [www.facebook.com](https://www.facebook.com)
 ```
+
+#### The Working
+
+This project bypasses the OS's default DNS stub resolver. Here is the lifecycle of a request:
+
+1. Packet Construction: The program builds a raw DNS query packet (Header + Question) encoded in Big Endian binary format.
+
+2. Root Query: It sends this packet via UDP to a hardcoded Root Server (198.41.0.4).
+
+3. Iterative Loop:
+
+   - The server replies not with the answer, but with a referral (Authoritative Section).
+
+   - The program parses this referral to find the next Nameserver IP.
+
+   - It repeats the query to this new server.
+
+4. Handling Aliases (CNAME): If a server responds with a CNAME record (Type 5), the resolver detects this, extracts the alias domain, and restarts the recursion process for that new name.
+
+5. Caching: Once an A Record (IP) is found, it is stored in a sync.RWMutex protected map with an expiration timestamp based on the record's TTL.
