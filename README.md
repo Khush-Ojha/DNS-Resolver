@@ -68,7 +68,9 @@ This project bypasses the OS's default DNS stub resolver. Here is the lifecycle 
 
 ## Project Structure
 
+```bash
 ├── main.go # Entry point, recursive loop logic, and caching layer
 ├── go.mod # Go module definition
 └── dns/
 └── message.go # Low-level packet parsing (Header, Question, Records) and byte manipulation
+```
