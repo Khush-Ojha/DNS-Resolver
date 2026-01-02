@@ -26,7 +26,7 @@ _This screenshot shows the resolver traversing from the Root Server down to the 
 
 _Notice the "Resolution took" time on the second run drops to near zero due to the in-memory cache._
 
-![After Cache & CName](images/Screenshot%202026-01-02%20082502.png)
+![After Cache & CName](images/Screenshot%202026-01-02%20092158.png)
 
 ## 🛠️ Installation & Usage
 
