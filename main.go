@@ -98,9 +98,10 @@ func resolve(domain string) (string, error) {
 
 				// CASE B: We found a CNAME (Type 5) - "Go look here instead"
 				if answer.Type == 5 {
-					cname := answer.ToName()
+					// CHANGE IS HERE: Use the pre-decoded string
+					cname := answer.CNAMEResource
+
 					fmt.Printf("   -> Found CNAME alias: %s. Restarting search...\n", cname)
-					// Recursive call to resolve the new alias
 					return resolve(cname)
 				}
 			}
