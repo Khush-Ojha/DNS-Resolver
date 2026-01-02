@@ -65,3 +65,10 @@ This project bypasses the OS's default DNS stub resolver. Here is the lifecycle 
 4. Handling Aliases (CNAME): If a server responds with a CNAME record (Type 5), the resolver detects this, extracts the alias domain, and restarts the recursion process for that new name.
 
 5. Caching: Once an A Record (IP) is found, it is stored in a sync.RWMutex protected map with an expiration timestamp based on the record's TTL.
+
+## Project Structure
+
+├── main.go # Entry point, recursive loop logic, and caching layer
+├── go.mod # Go module definition
+└── dns/
+└── message.go # Low-level packet parsing (Header, Question, Records) and byte manipulation
